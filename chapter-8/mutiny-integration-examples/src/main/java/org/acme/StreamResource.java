@@ -23,6 +23,15 @@ public class StreamResource {
     Vertx vertx;
 
     @GET
+    @Path("/wholebook")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Multi<String> wholeBook() {
+        Multi<String> book = vertx.fileSystem().open("war-and-peace.txt", new OpenOptions().setRead(true))
+                .onItem().transformToMulti(AsyncFile::toMulti)
+                .onItem().transform(b -> b.toString("UTF-8"));
+        return book;
+    }
+    @GET
     @Path("/book")
     @Produces(MediaType.TEXT_PLAIN)
     public Multi<String> book() {
@@ -37,6 +46,13 @@ public class StreamResource {
 
 
     @Inject BookService service;
+
+    @GET
+    @Path("/allbooks")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Multi<Book> allbooks() {
+        return service.getBooks();
+    }
 
     @GET
     @Path("/books")

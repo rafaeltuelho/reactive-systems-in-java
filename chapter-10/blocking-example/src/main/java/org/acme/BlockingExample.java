@@ -25,6 +25,7 @@ public class BlockingExample {
     public String hello(long tick) {
         // Simulate a long operation
         try {
+            System.out.println(Thread.currentThread().getName() + ": sleep for 1s...");
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

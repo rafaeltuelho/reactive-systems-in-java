@@ -1,6 +1,7 @@
 package org.acme.data;
 
 import io.quarkus.hibernate.reactive.panache.Panache;
+import io.quarkus.hibernate.reactive.panache.common.runtime.ReactiveTransactional;
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -54,18 +55,23 @@ public class CustomerResource {
 
   @PUT
   @Path("{id}")
+  @ReactiveTransactional
   public Uni<Response> updateCustomer(@RestPath Long id, @Valid Customer customer) {
     if (customer.id == null) {
       throw new WebApplicationException("Invalid customer set on request", 422);
     }
+//    return Panache
+//            .withTransaction(
+//                    () -> Customer.<Customer>findById(id)
+//                            .onItem().ifNotNull().invoke(entity -> entity.name = customer.name)
+//            )
+//            .onItem().ifNotNull().transform(entity -> Response.ok(entity).build())
+//            .onItem().ifNull().continueWith(Response.ok().status(Response.Status.NOT_FOUND).build());
 
-    return Panache
-        .withTransaction(
-            () -> Customer.<Customer>findById(id)
-                .onItem().ifNotNull().invoke(entity -> entity.name = customer.name)
-        )
-        .onItem().ifNotNull().transform(entity -> Response.ok(entity).build())
-        .onItem().ifNull().continueWith(Response.ok().status(Response.Status.NOT_FOUND).build());
+    return Customer.<Customer>findById(id)
+            .onItem().ifNotNull().invoke(entity -> entity.name = customer.name)
+            .onItem().ifNotNull().transform(entity -> Response.ok(entity).build())
+            .onItem().ifNull().continueWith(Response.ok().status(Response.Status.NOT_FOUND).build());
   }
 
   @DELETE

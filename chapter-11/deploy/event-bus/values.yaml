@@ -3,21 +3,24 @@ ticker:
   replicaCount: 1
   image:
     repository: event-bus/ticker
-    version: latest
+#    version: latest
+    version: amqp
     pullPolicy: IfNotPresent
 
 processor:
   replicaCount: 1
   image:
     repository: event-bus/processor
-    version: latest
+#    version: lates
+    version: amqp
     pullPolicy: IfNotPresent
 
 viewer:
   replicaCount: 1
   image:
     repository: event-bus/viewer
-    version: latest
+#    version: latest
+    version: amqp
     pullPolicy: IfNotPresent
 
 # The namespace and service name for the Kafka server.
@@ -30,8 +33,10 @@ kafka:
 
 # AMQP Broker
 amqp:
-  host: amqp
-  port: 5672
+  # host: amqp # when deployed directly from the image quay.io/artemiscloud/activemq-artemis-broker
+  # port: 61616
+  host: artemis-broker-ss-0.artemis-broker-hdls-svc.activemq-artemis-operator.svc.cluster.local
+  port: 5672 #AMQP Protocol
   username: admin
   password: admin
 

@@ -7,6 +7,8 @@ import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
 import javax.inject.Singleton;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.CompletionStage;
 
 @Singleton
 public class Processor {
@@ -16,17 +18,22 @@ public class Processor {
   @Incoming("ticks")
   @Outgoing("processed")
   @Acknowledgment(Acknowledgment.Strategy.MANUAL)
-  Message<String> process(Message<Long> message) throws Exception {
+  CompletionStage<Message<String>> process(Message<Long> message) throws Exception {
     if (count++ % 8 == 0) {
+      System.out.println("Random failure to process a record.");
       message.nack(new Throwable("Random failure to process a record.")).toCompletableFuture().join();
       return null;
     }
 
-    String value = String.valueOf(message.getPayload());
-    value += " consumed in pod (" + InetAddress.getLocalHost().getHostName() + ")";
+    return message.ack().thenApply(s -> {
+      String value = String.valueOf(message.getPayload());
+      try {
+        value += " consumed in pod (" + InetAddress.getLocalHost().getHostName() + ")";
+      } catch (UnknownHostException e) {
+        throw new RuntimeException(e);
+      }
 
-    message.ack().toCompletableFuture().join();
-
-    return message.withPayload(value);
+      return message.withPayload(value);
+    });
   }
 }

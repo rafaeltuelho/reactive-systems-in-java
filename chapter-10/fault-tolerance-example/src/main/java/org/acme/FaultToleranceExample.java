@@ -39,6 +39,7 @@ public class FaultToleranceExample {
 
     void maybeFaulty() {
         if (random.nextInt(10) > 7) {
+            System.out.println("Throwing a simulated exception...");
             throw new RuntimeException("boom");
         }
     }
